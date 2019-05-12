@@ -169,8 +169,8 @@ void dram ()
 	attron(COLOR_PAIR(1));
 	mvprintw ( y, x, "O" );
 	attron(COLOR_PAIR(2));
-	mvprintw ( 5, xmax+5, "X: %i",x );
-	mvprintw ( 6, xmax+5, "Y: %i",y );
+	//mvprintw ( 5, xmax+5, "X: %i",x );
+	//mvprintw ( 6, xmax+5, "Y: %i",y );
 	mvprintw ( 8, xmax+5, "Szint: %i",lvl+1 );
 	attron(COLOR_PAIR(6));
 	mvprintw ( 9, xmax+5, "Pont: %i",lvl+pont );
