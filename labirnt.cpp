@@ -175,7 +175,7 @@ void dram ()
 	attron(COLOR_PAIR(6));
 	mvprintw ( 9, xmax+5, "Pont: %i",lvl+pont );
 	attron(COLOR_PAIR(3));
-	mvprintw ( 2, 30, " ");
+	mvprintw ( 2, xmax+5, " ");
         refresh ();
         usleep (40000);
 	clear();
