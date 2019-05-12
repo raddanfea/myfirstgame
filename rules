@@ -1,0 +1,11 @@
+Sajnos Steve-nek nagyon rossz a szeme ezért csak 1 blokk távolságban lát. 
+Vajon ki tud jutni ebből a 3 szintes labirintusból a W ascii karakterek megölelésével? 
+Talán kincset is talál eközben?
+
+WASD irányitás, a program közvetlen olvassa a billentyüzetet ezért hozzáférést kell adni!
+Csak a körülötted lévő 4 blokkot látod.
+
+Fehér blokk   pálya vége
+X             fal
+W             cél
+*             kincs
