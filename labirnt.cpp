@@ -10,6 +10,7 @@ using namespace std;
 
 	int lvl = 0;
 	int pont = 0;
+	bool p1 = false;
 	int x = 1;
 	int y = 1;
 	const int xmax = 20;
@@ -128,7 +129,7 @@ void dram ()
 		int kla= 0;
 		for(kla = 0; kla < xmax; kla++)
 			{	
-				//cout << "debugvonal------" << endl;
+				//if(iskiss(kla,la)!=100000000) //fullscreen nézet csalás
 				if(iskiss(kla,la)==1)
 				{
 					switch(*mapdata[(ymax*la)+kla+lvl*(xmax*ymax)]){
@@ -149,9 +150,12 @@ void dram ()
 
 					case '*':
 						{
-							attron(COLOR_PAIR(6));
-							mvprintw (la, kla, mapdata[(ymax*la)+kla+lvl*(xmax*ymax)]);
-							break;
+							if (p1==false){
+								attron(COLOR_PAIR(6));
+								mvprintw (la, kla, mapdata[(ymax*la)+kla+lvl*(xmax*ymax)]);
+								break;
+							}
+							else {mvprintw (la, kla, " ");break;}
 						}
 
 					default:
@@ -210,11 +214,12 @@ ifstream file("/dev/input/event2");
 	    	}
 		if (mapdata[(ymax*y)+x+lvl*(xmax*ymax)] == "W")
 			{
-				if(lvl < 2){lvl++; x=1;y=1;break;}
+				p1=false;
+				if(lvl < 2){lvl++; x=1;y=1; break;}
 				else{session = false; lvl++; break;};
 
 			}
-		if (mapdata[(ymax*y)+x+lvl*(xmax*ymax)] == "*"){pont++;}
+		if (mapdata[(ymax*y)+x+lvl*(xmax*ymax)] == "*" && p1 == false){pont++; p1=true;}
         }
         file.close();
     }
@@ -229,6 +234,7 @@ ifstream file("/dev/input/event2");
 int
 main ( void )
 {
+
 	while (lvl != 3) 
 		{
 			inpt ();
@@ -252,3 +258,246 @@ cout << red << "  Nyertél!" << reset << endl << endl << endl;
 cout << "  Pontok:" << lvl+pont << endl << endl << endl;
 return 0;
 }
+Skip to content
+Pull requests
+Issues
+Marketplace
+Explore
+@raddanfea
+
+0
+0
+
+    0
+
+raddanfea/myfirstgame
+Code
+Issues 0
+Pull requests 0
+Projects 0
+Wiki
+Insights
+Settings
+myfirstgame/
+
+1
+
+#include <stdio.h>
+
+2
+
+#include <curses.h>
+
+3
+
+#include <unistd.h>
+
+4
+
+#include <iostream>
+
+5
+
+#include <linux/input.h>
+
+6
+
+#include <fstream>
+
+7
+
+#include <cstring>
+
+8
+
+​
+
+9
+
+using namespace std;
+
+10
+
+​
+
+11
+
+        int lvl = 0;
+
+12
+
+        int pont = 0;
+
+13
+
+        int x = 1;
+
+14
+
+        int y = 1;
+
+15
+
+        const int xmax = 20;
+
+16
+
+        const int ymax = 20;
+
+17
+
+        int wait;
+
+18
+
+        float draw;
+
+19
+
+        bool session = true;
+
+20
+
+​
+
+21
+
+​
+
+22
+
+        const char* const mapdata []={
+
+23
+
+                "|","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","|",
+
+24
+
+                "|"," ","X"," "," "," ","X","X","X"," ","X"," "," "," "," "," ","X","*"," ","|",
+
+25
+
+                "|"," "," "," ","X"," "," ","X"," "," ","X"," ","X"," ","X"," ","X","X"," ","|",
+
+26
+
+                "|","X","X","X","X","X"," ","X"," "," "," "," ","X"," ","X"," "," ","X"," ","|",
+
+27
+
+                "|"," ","X"," "," ","X"," ","X"," ","X"," "," ","X"," ","X","X"," "," "," ","|",
+
+28
+
+                "|"," ","X"," ","X","X"," ","X"," ","X"," "," "," "," "," ","X"," "," "," ","|",
+
+29
+
+                "|"," "," "," "," "," "," ","X"," ","X","X","X","X"," ","X","X"," ","X"," ","|",
+
+30
+
+                "|"," ","X"," ","X"," "," ","X"," "," "," "," ","X"," "," ","X"," ","X","X","|",
+
+31
+
+                "|"," ","X"," ","X","X"," ","X","X","X","X"," ","X","X"," ","X"," ","X"," ","|",
+
+32
+
+                "|"," ","X"," "," ","X"," ","X"," "," "," "," "," ","X"," ","X"," ","X"," ","|",
+
+33
+
+                "|"," ","X","X","X","X"," ","X"," "," "," ","X"," ","X"," ","X"," "," "," ","|",
+
+34
+
+                "|"," "," "," ","X"," "," ","X"," ","X","X","X"," ","X"," ","X"," ","X","X","|",
+
+35
+
+                "|"," ","X"," ","X"," ","X","X"," "," "," ","X"," "," "," ","X","X","X"," ","|",
+
+36
+
+                "|"," ","X"," ","X"," "," "," "," "," "," ","X","X","X"," ","X"," "," "," ","|",
+
+37
+
+                "|"," ","X"," ","X"," ","X","X","X","X"," ","X"," "," "," ","X"," ","X"," ","|",
+
+38
+
+                "|"," ","X"," ","X"," "," ","X"," "," "," ","X"," "," "," "," "," ","X"," ","|",
+
+39
+
+                "|"," ","X","X","X","X"," ","X"," ","X","X","X"," "," ","X","X"," ","X","X","|",
+
+40
+
+                "|"," ","X"," ","X"," "," ","X"," "," "," ","X"," "," "," ","X"," "," "," ","|",
+
+41
+
+                "|"," "," "," ","X","X","X","X"," "," "," ","X"," "," "," ","X"," ","X","W","|",
+
+42
+
+                "|","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","|",
+
+43
+
+​
+
+44
+
+                "|","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","|",
+
+45
+
+                "|"," ","X"," ","X"," ","X","X"," "," ","X"," ","X"," "," "," "," "," ","W","|",
+
+46
+
+                "|"," "," "," ","X"," "," ","X"," ","X","X"," ","X"," ","X","X","X","X"," ","|",
+
+47
+
+                "|","X","X"," ","X","X"," ","X"," "," "," "," ","X"," "," "," "," ","X","X","|",
+
+48
+
+                "|"," ","X"," "," "," "," ","X"," ","X"," ","X","X","X","X","X"," "," "," ","|",
+
+49
+
+                "|"," ","X"," ","X","X","X","X"," ","X"," "," "," "," "," ","X"," "," "," ","|",
+
+50
+
+                "|"," "," "," "," "," "," ","X"," ","X","X","X","X"," ","X","X"," ","X"," ","|",
+
+@raddanfea
+Commit changes
+Commit summary
+Optional extended description
+Commit directly to the master branch.
+Create a new branch for this commit and start a pull request. Learn more about pull requests.
+
+    © 2019 GitHub, Inc.
+    Terms
+    Privacy
+    Security
+    Status
+    Help
+
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
+
