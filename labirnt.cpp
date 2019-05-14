@@ -10,6 +10,7 @@ using namespace std;
 
 	int lvl = 0;
 	int pont = 0;
+	bool p1 = false;
 	int x = 1;
 	int y = 1;
 	const int xmax = 20;
@@ -82,7 +83,7 @@ using namespace std;
 		"|"," ","X"," ","X"," "," "," "," "," "," ","X"," ","X"," "," "," "," "," ","|",
 		"|"," "," "," "," "," ","X","X"," ","X"," "," "," ","X"," ","X"," ","X"," ","|",
 		"|","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","-","|"
-
+	
 	};
 
 int iskiss(int ax, int bx)
@@ -122,17 +123,17 @@ void dram ()
 	init_pair(4, COLOR_YELLOW, COLOR_BLACK);
 	init_pair(5, COLOR_WHITE, COLOR_WHITE);
 	init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
-
+	
 	for(int la = 0; la < ymax; la++)
 		{
 		int kla= 0;
 		for(kla = 0; kla < xmax; kla++)
 			{	
-				//cout << "debugvonal------" << endl;
+				//if(iskiss(kla,la)!=100000000) //fullscreen nézet csalás
 				if(iskiss(kla,la)==1)
 				{
 					switch(*mapdata[(ymax*la)+kla+lvl*(xmax*ymax)]){
-
+					
 					case 'W': 
 						{
 							attron(COLOR_PAIR(4));
@@ -149,9 +150,12 @@ void dram ()
 
 					case '*':
 						{
-							attron(COLOR_PAIR(6));
-							mvprintw (la, kla, mapdata[(ymax*la)+kla+lvl*(xmax*ymax)]);
-							break;
+							if (p1==false){
+								attron(COLOR_PAIR(6));
+								mvprintw (la, kla, mapdata[(ymax*la)+kla+lvl*(xmax*ymax)]);
+								break;
+							}
+							else {mvprintw (la, kla, " ");break;}
 						}
 
 					default:
@@ -165,17 +169,17 @@ void dram ()
 			}
 		}
 
-
+	
 	attron(COLOR_PAIR(1));
 	mvprintw ( y, x, "O" );
 	attron(COLOR_PAIR(2));
-	mvprintw ( 5, xmax+5, "X: %i",x );
-	mvprintw ( 6, xmax+5, "Y: %i",y );
+	//mvprintw ( 5, xmax+5, "X: %i",x );
+	//mvprintw ( 6, xmax+5, "Y: %i",y );
 	mvprintw ( 8, xmax+5, "Szint: %i",lvl+1 );
 	attron(COLOR_PAIR(6));
 	mvprintw ( 9, xmax+5, "Pont: %i",lvl+pont );
 	attron(COLOR_PAIR(3));
-	mvprintw ( 2, 30, " ");
+	mvprintw ( 2, xmax+5, " ");
         refresh ();
         usleep (40000);
 	clear();
@@ -189,36 +193,37 @@ void inpt ()
 struct input_event event;
 
 ifstream file("/dev/input/event2");
-
+    
     char data[sizeof(event)];
-
+	
     if(file.is_open()) {
-
+        
         while(session) {
 		dram();
-
+            
             	file.read(data, sizeof(event));
 
             	memcpy(&event, data, sizeof(event));
 
             	if(event.type == EV_KEY) {
-		if(event.code == KEY_D) {if (mapdata[(ymax*y)+x+1+lvl*(xmax*ymax)] != "X") {++x;}; usleep (100000);  break;}
-		if(event.code == KEY_W) {if (mapdata[(ymax*(y-1))+x+lvl*(xmax*ymax)] != "X") {--y;}; usleep (100000);  break;}
-		if(event.code == KEY_S) {if (mapdata[(ymax*(y+1))+x+lvl*(xmax*ymax)] != "X") {++y;}; usleep (100000);  break;}
-		if(event.code == KEY_A) {if (mapdata[(ymax*y)+x-1+lvl*(xmax*ymax)] != "X") {--x;}; usleep (100000);  break;}
-		        else 	{ break; }
+			if(event.code == KEY_D) {if (mapdata[(ymax*y)+x+1+lvl*(xmax*ymax)] != "X") {++x;}; usleep (100000);  break;}
+			if(event.code == KEY_W) {if (mapdata[(ymax*(y-1))+x+lvl*(xmax*ymax)] != "X") {--y;}; usleep (100000);  break;}
+			if(event.code == KEY_S) {if (mapdata[(ymax*(y+1))+x+lvl*(xmax*ymax)] != "X") {++y;}; usleep (100000);  break;}
+			if(event.code == KEY_A) {if (mapdata[(ymax*y)+x-1+lvl*(xmax*ymax)] != "X") {--x;}; usleep (100000);  break;}
 	    	}
-		if (mapdata[(ymax*y)+x+lvl*(xmax*ymax)] == "W"){
-				if(lvl < 2){lvl++; x=1;y=1;break;}
+		if (mapdata[(ymax*y)+x+lvl*(xmax*ymax)] == "W")
+			{
+				p1=false;
+				if(lvl < 2){lvl++; x=1;y=1; break;}
 				else{session = false; lvl++; break;};
 
-		}
-		if (mapdata[(ymax*y)+x+lvl*(xmax*ymax)] == "*"){pont++;break;}
+			}
+		if (mapdata[(ymax*y)+x+lvl*(xmax*ymax)] == "*" && p1 == false){pont++; p1=true; break;}
         }
         file.close();
     }
     else {
-
+        
         cout << "Unable to open file!" << endl;
     }
 
@@ -228,6 +233,7 @@ ifstream file("/dev/input/event2");
 int
 main ( void )
 {
+
 	while (lvl != 3) 
 		{
 			inpt ();
